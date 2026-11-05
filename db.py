@@ -1,5 +1,9 @@
 import sqlite3
 
+# Rules shared by the whole program
+CATEGORIES = ["Sneakers", "Cooperate", "Slides", "Canvas", "Formal"]
+MIN_SIZE = 38
+MAX_SIZE = 47
 
 def connect_db():
     """Open a connection to the Frey Kicks database with foreign keys enforced."""
@@ -12,8 +16,15 @@ def connect_db():
 def add_product(name, category, size, price, stock):
     """Insert a new shoe into the products table.
 
+    Category must be one of CATEGORIES (case does not matter).
     Returns the id of the new product.
     """
+    # Match the category to the official spelling, or reject it
+    matches = [c for c in CATEGORIES if c.lower() == category.lower()]
+    if not matches:
+        raise ValueError("Category must be one of: " + ", ".join(CATEGORIES))
+    category = matches[0]
+
     conn = connect_db()
     try:
         cursor = conn.execute("""
@@ -24,7 +35,6 @@ def add_product(name, category, size, price, stock):
         return cursor.lastrowid
     finally:
         conn.close()
-
 
 def get_all_products():
     """Return every product as a list of rows."""
