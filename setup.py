@@ -12,8 +12,9 @@ conn.execute("""
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         category TEXT NOT NULL,
-        price INTEGER NOT NULL,      -- price in whole Naira
-        stock INTEGER NOT NULL DEFAULT 0
+        price INTEGER NOT NULL CHECK (price >= 0),
+        size TEXT NOT NULL,
+        stock INTEGER NOT NULL DEFAULT 0 CHECK (stock >= 0)
     )
 """)
 
@@ -33,7 +34,7 @@ conn.execute("""
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         customer_id INTEGER NOT NULL,
         order_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        status TEXT DEFAULT 'Pending',
+        status TEXT NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Completed', 'Cancelled')),
         FOREIGN KEY (customer_id) REFERENCES customers(id)
     )
 """)
@@ -44,8 +45,8 @@ conn.execute("""
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         order_id INTEGER NOT NULL,
         product_id INTEGER NOT NULL,
-        quantity INTEGER NOT NULL,
-        price_at_sale REAL NOT NULL,
+        quantity INTEGER NOT NULL CHECK (quantity > 0),
+        price_at_sale INTEGER NOT NULL,
         FOREIGN KEY (order_id) REFERENCES orders(id),
         FOREIGN KEY (product_id) REFERENCES products(id)
     )
@@ -54,4 +55,4 @@ conn.execute("""
 
 conn.commit()
 conn.close()
-print("Database and products table created.")
+print("Database and all table created.")
